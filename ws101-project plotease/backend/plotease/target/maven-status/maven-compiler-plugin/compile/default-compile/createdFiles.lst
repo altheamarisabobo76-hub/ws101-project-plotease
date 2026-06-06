@@ -1,0 +1,14 @@
+com\plotease\PloteaseApplication.class
+com\plotease\repository\RecordRepository.class
+com\plotease\controller\RecordController.class
+com\plotease\config\SecurityConfig.class
+com\plotease\controller\UserController.class
+com\plotease\entity\User.class
+com\plotease\controller\AuthController.class
+com\plotease\entity\Record.class
+com\plotease\controller\FormController.class
+com\plotease\entity\PlotForm.class
+com\plotease\repository\UserRepository.class
+com\plotease\dto\LoginRequest.class
+com\plotease\model\RegisterRequest.class
+com\plotease\repository\PlotFormRepository.class

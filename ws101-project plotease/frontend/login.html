@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlotEase — Login</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="login-card">
+
+<div class="login-logo">
+<div class="logo-mark">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+<path
+d="M4 19V5m0 14h16M8 15l3-3 2 2 5-5"
+stroke-width="2"
+stroke-linecap="round"
+stroke-linejoin="round"/>
+</svg>
+
+</div>
+
+<div>
+
+<div class="logo-title">
+PlotEase
+</div>
+
+<div class="logo-sub">
+Student Plotting System
+</div>
+
+</div>
+
+</div>
+
+<div class="title">
+Login
+</div>
+
+<div class="subtitle">
+Access your student dashboard
+</div>
+
+<div class="field">
+
+<label>
+User ID / Username / Email
+</label>
+
+<input
+id="login-username"
+type="text"
+placeholder="STU10294">
+
+</div>
+
+<div class="field">
+
+<label>
+Password
+</label>
+
+<input
+id="login-password"
+type="password"
+placeholder="Enter password">
+
+</div>
+
+<button
+class="login-btn"
+onclick="handleLogin()">
+
+Login
+
+</button>
+
+<div class="footer">
+
+No account?
+
+<a href="signup.html">
+
+Create Account
+
+</a>
+
+</div>
+
+</div>
+
+<div id="toast-container"></div>
+
+<script src="app.js"></script>
+
+</body>
+</html>

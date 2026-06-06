@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PlotEase - Dashboard</title>
+
+<link rel="stylesheet" href="styles.css" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+
+<body>
+
+<div class="dashboard">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="brand">
+      <div class="logo-mark"></div>
+      <div>
+        <div class="logo-title">PlotEase</div>
+        <div class="logo-sub">Student System</div>
+      </div>
+    </div>
+
+    <button class="nav-btn active" onclick="showView('form')">📌 Plotting Form</button>
+    <button class="nav-btn" onclick="showView('view')">📋 View Schedule</button>
+    <button class="nav-btn" onclick="logout()">🚪 Logout</button>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="card user-card">
+      <h2>Welcome, <span id="student-name">Student</span></h2>
+      <p id="student-info">Loading profile...</p>
+    </div>
+
+    <!-- FORM -->
+    <div class="card" id="formView">
+
+      <h2>📌 Student Plotting Form</h2>
+
+      <div class="grid">
+
+        <div class="field">
+          <label>Subject Code</label>
+          <input type="text" id="subject">
+        </div>
+
+        <div class="field">
+          <label>Subject Name</label>
+          <input type="text" id="subjectName">
+        </div>
+
+        <div class="field">
+          <label>Course</label>
+          <input type="text" id="course">
+        </div>
+
+        <div class="field">
+          <label>Year Level</label>
+          <select id="year">
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Section</label>
+          <select id="section">
+            <option>A</option><option>B</option><option>C</option>
+            <option>D</option><option>E</option><option>F</option>
+            <option>G</option><option>H</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Semester</label>
+          <select id="semester">
+            <option value="1">1st Semester</option>
+            <option value="2">2nd Semester</option>
+          </select>
+        </div>
+
+       <div class="field">
+  <label>Day 1</label>
+  <select id="day1">
+    <option value="">Select Day 1</option>
+    <option>Monday</option>
+    <option>Tuesday</option>
+    <option>Wednesday</option>
+    <option>Thursday</option>
+    <option>Friday</option>
+    <option>Saturday</option>
+  </select>
+</div>
+
+<div class="field">
+  <label>Day 2 (Optional)</label>
+  <select id="day2">
+    <option value="">No Second Day</option>
+    <option>Monday</option>
+    <option>Tuesday</option>
+    <option>Wednesday</option>
+    <option>Thursday</option>
+    <option>Friday</option>
+    <option>Saturday</option>
+  </select>
+</div>
+
+        <!-- ✅ TIME DROPDOWN -->
+        <div class="field">
+          <label>Time</label>
+          <select id="time">
+            <option value="">Select Time</option>
+            <option>7:00 AM - 8:30 AM</option>
+            <option>8:30 AM - 10:00 AM</option>
+            <option>10:00 AM - 11:30 AM</option>
+            <option>11:30 AM - 1:00 PM</option>
+            <option>1:00 PM - 2:30 PM</option>
+            <option>2:30 PM - 4:00 PM</option>
+            <option>4:00 PM - 5:30 PM</option>
+            <option>5:30 PM - 7:00 PM</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Room</label>
+          <input type="text" id="room">
+        </div>
+
+      </div>
+
+      <button class="btn" onclick="savePlot()">Save Schedule</button>
+      <button class="btn" onclick="exportPDF()">📄 Export PDF</button>
+    </div>
+
+    <!-- VIEW -->
+    <div class="card" id="viewSchedule" style="display:none;">
+      <h2>📋 My Schedule</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Subject</th>
+            <th>Course</th>
+            <th>Year</th>
+            <th>Section</th>
+            <th>Sem</th>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Room</th>
+          </tr>
+        </thead>
+        <tbody id="scheduleTable"></tbody>
+      </table>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ================= USER =================
+function loadUser() {
+  const user = JSON.parse(localStorage.getItem("plotease_session"));
+
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  document.getElementById("student-name").innerText = user.fullName || "Student";
+  document.getElementById("student-info").innerText =
+    `${user.studentId || ""} | ${user.email || ""}`;
+}
+
+// ================= VIEW =================
+function showView(view) {
+  document.getElementById("formView").style.display =
+    view === "form" ? "block" : "none";
+
+  document.getElementById("viewSchedule").style.display =
+    view === "view" ? "block" : "none";
+
+  if (view === "view") loadSchedule();
+}
+
+// ================= SAVE =================
+function savePlot() {
+  const data = {
+    subject: document.getElementById("subject").value.trim(),
+    subjectName: document.getElementById("subjectName").value.trim(),
+    course: document.getElementById("course").value.trim(),
+    year: document.getElementById("year").value,
+    section: document.getElementById("section").value,
+    semester: document.getElementById("semester").value,
+    day: document.getElementById("day").value,
+    time: document.getElementById("time").value,
+    room: document.getElementById("room").value.trim()
+  };
+
+  if (Object.values(data).some(v => v === "")) {
+    alert("Please complete all fields");
+    return;
+  }
+
+  let schedules = JSON.parse(localStorage.getItem("plotease_schedule")) || [];
+  schedules.push(data);
+
+  localStorage.setItem("plotease_schedule", JSON.stringify(schedules));
+
+  alert("Schedule saved!");
+
+  document.querySelectorAll("input").forEach(i => i.value = "");
+  document.querySelectorAll("select").forEach(s => s.selectedIndex = 0);
+
+  loadSchedule();
+}
+
+// ================= LOAD =================
+function loadSchedule() {
+  const table = document.getElementById("scheduleTable");
+  table.innerHTML = "";
+
+  let schedules = JSON.parse(localStorage.getItem("plotease_schedule")) || [];
+
+  schedules.forEach(s => {
+    table.innerHTML += `
+      <tr>
+        <td>${s.subject}</td>
+        <td>${s.subjectName}</td>
+        <td>${s.course}</td>
+        <td>${s.year}</td>
+        <td>${s.section}</td>
+        <td>${s.semester}</td>
+        <td>${s.day}</td>
+        <td>${s.time}</td>
+        <td>${s.room}</td>
+      </tr>
+    `;
+  });
+}
+
+// ================= PDF EXPORT =================
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let schedules = JSON.parse(localStorage.getItem("plotease_schedule")) || [];
+  let user = JSON.parse(localStorage.getItem("plotease_session"));
+
+  if (!schedules.length) {
+    alert("No schedules to export");
+    return;
+  }
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("UNIVERSITY OF EASTERN PHILIPPINES", 105, 15, { align: "center" });
+
+  doc.setFontSize(12);
+  doc.text("PLOTEASE - STUDENT SCHEDULING SYSTEM", 105, 22, { align: "center" });
+
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+
+  doc.text(`Name: ${user?.fullName || ""}`, 14, 35);
+  doc.text(`Student ID: ${user?.studentId || ""}`, 14, 41);
+  doc.text(`Email: ${user?.email || ""}`, 14, 47);
+  doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 53);
+
+  const data = schedules.map(s => [
+    s.subject,
+    s.subjectName,
+    s.course,
+    s.year,
+    s.section,
+    s.semester,
+    s.day,
+    s.time,
+    s.room
+  ]);
+
+  doc.autoTable({
+    startY: 60,
+    head: [["Code","Subject","Course","Year","Section","Sem","Day","Time","Room"]],
+    body: data,
+    theme: "grid",
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [124, 92, 255] }
+  });
+
+  doc.save("UEP_PlotEase_Schedule.pdf");
+}
+
+// ================= LOGOUT =================
+function logout() {
+  localStorage.removeItem("plotease_session");
+  window.location.href = "login.html";
+}
+
+// INIT
+loadUser();
+loadSchedule();
+</script>
+
+</body>
+</html>
